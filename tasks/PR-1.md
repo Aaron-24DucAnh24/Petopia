@@ -1,38 +1,39 @@
-# PR-1: Thiết lập task workflow
+# PR-1: Set up task workflow
 
-**Trạng thái:** Done
-**Phạm vi:** umbrella
+**Status:** Done
+**Scope:** umbrella
 
-## Mô tả chi tiết
+## Description
 
-Chuẩn hóa quy trình làm task trong repo Petopia để mọi thay đổi đều có tài liệu đi kèm và dễ theo dõi:
+Standardize how tasks are done in the Petopia repo so that every change comes with documentation and is easy to follow:
 
-- Thêm thư mục `tasks/`. Mỗi yêu cầu (tính năng, sửa lỗi, chỉnh sửa...) có một file `tasks/PR-X.md`, X tăng dần từ 1, gồm tên task, mô tả chi tiết, testcase và các case đã hoàn thành.
-- Tạo file task trước khi code, cập nhật file sau khi code xong.
-- Commit message: `[<type>] PR-X: <tóm tắt thay đổi>`.
-- PR tên `PR-X: <tên task>`, không có description.
+- Add a `tasks/` folder. Each request (feature, bug fix, change...) gets a `tasks/PR-X.md` file, with X counting up from 1, containing the task name, a detailed description, test cases and which cases are done.
+- Create the task file before coding, update it after coding.
+- Commit message: `[<type>] PR-X: <summary of the change>`.
+- PR titled `PR-X: <task name>`, with no description.
 
-Hướng tiếp cận:
+Approach:
 
-- Skill `.claude/skills/task-workflow/` (SKILL.md + template.md) mô tả chi tiết các bước, gồm cả cách xử lý khi code nằm trong submodule.
-- `CLAUDE.md` ở root tóm tắt quy tắc và trỏ tới skill, để workflow được nạp vào mọi session.
+- The `.claude/skills/task-workflow/` skill (SKILL.md + template.md) describes each step in detail, including how to handle code that lives in a submodule.
+- The root `CLAUDE.md` summarizes the rules and points to the skill, so the workflow is loaded in every session.
 
-## Testcase
+## Test cases
 
-- [x] TC1: Mở session mới trong repo → skill `task-workflow` xuất hiện trong danh sách skill khả dụng.
-  - Kiểm chứng: skill được Claude Code nhận ngay sau khi tạo file, hiển thị trong danh sách skill.
-- [x] TC2: `CLAUDE.md` ở root có mục "Workflow bắt buộc" trỏ tới skill → quy tắc được nạp mỗi session.
-  - Kiểm chứng: đọc lại nội dung `CLAUDE.md`.
-- [x] TC3: Chưa có file `tasks/PR-*.md` và branch `pr-*` nào → task đầu tiên được đánh số PR-1.
-  - Kiểm chứng: `git branch -a --list '*pr-*'` không trả về branch nào, `tasks/` chưa có file task.
-- [x] TC4: Mọi commit trên branch `pr-1/task-workflow` có dạng `[<type>] PR-1: <tóm tắt>`.
-  - Kiểm chứng: `git log --oneline main..pr-1/task-workflow`.
-- [x] TC5: PR được tạo với tiêu đề `PR-1: Thiết lập task workflow` và description trống.
-  - Kiểm chứng: `gh pr view 1 --json title,body` trả về `body: ""`.
+- [x] TC1: Open a new session in the repo → the `task-workflow` skill shows up in the list of available skills.
+  - Verified: Claude Code picked up the skill right after the file was created and listed it.
+- [x] TC2: The root `CLAUDE.md` has a "Mandatory workflow" section pointing to the skill → the rules are loaded every session.
+  - Verified: re-read `CLAUDE.md`.
+- [x] TC3: No `tasks/PR-*.md` file and no `pr-*` branch exist yet → the first task is numbered PR-1.
+  - Verified: `git branch -a --list '*pr-*'` returned no branches, `tasks/` had no task file.
+- [x] TC4: Every commit on branch `pr-1/task-workflow` has the form `[<type>] PR-1: <summary>`.
+  - Verified: `git log --oneline main..pr-1/task-workflow`.
+- [x] TC5: The PR is created with the title `PR-1: Thiết lập task workflow` and an empty description.
+  - Verified: `gh pr view 1 --json title,body` returned `body: ""`.
 
-## Kết quả
+## Result
 
-- Thêm skill [task-workflow](../.claude/skills/task-workflow/SKILL.md) và [template](../.claude/skills/task-workflow/template.md) cho file task.
-- Thêm [CLAUDE.md](../CLAUDE.md) tóm tắt workflow bắt buộc.
-- Thêm thư mục `tasks/`, bắt đầu với file này.
+- Added the [task-workflow](../.claude/skills/task-workflow/SKILL.md) skill and a [template](../.claude/skills/task-workflow/template.md) for task files.
+- Added [CLAUDE.md](../CLAUDE.md) summarizing the mandatory workflow.
+- Added the `tasks/` folder, starting with this file.
 - PR: https://github.com/Aaron-24DucAnh24/Petopia/pull/1
+- Note: this file was translated to English in PR-2. The merged PR title above is kept as it was created.

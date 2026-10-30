@@ -1,17 +1,17 @@
-# PR-X: <Tên task>
+# PR-X: <Task name>
 
-**Trạng thái:** In progress
-**Phạm vi:** backend | frontend | chat | umbrella
+**Status:** In progress
+**Scope:** backend | frontend | chat | umbrella
 
-## Mô tả chi tiết
+## Description
 
-<Bối cảnh, yêu cầu, phạm vi, hướng tiếp cận dự kiến.>
+<Context, requirements, scope, planned approach.>
 
-## Testcase
+## Test cases
 
-- [ ] TC1: <Thao tác / input> → <Kết quả mong đợi>
+- [ ] TC1: <Action / input> → <Expected result>
 - [ ] TC2: ...
 
-## Kết quả
+## Result
 
-<Điền sau khi code xong: tóm tắt thay đổi, file/module chính, cách kiểm chứng, link PR.>
+<Fill in after coding: summary of changes, main files/modules, how it was verified, PR links.>
