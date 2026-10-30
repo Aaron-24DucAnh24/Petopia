@@ -1,12 +1,16 @@
 # Petopia
 
-Umbrella repo; code nằm trong các submodule `backend/`, `frontend/`, `chat/` (xem [README.md](README.md)).
+Umbrella repo; the code lives in the `backend/`, `frontend/` and `chat/` submodules (see [README.md](README.md)). Local infrastructure for all services is defined once in the root [docker-compose.yml](docker-compose.yml); sub-repos don't ship their own.
 
-## Workflow bắt buộc
+## Language
 
-Mọi yêu cầu làm tính năng / sửa lỗi / chỉnh sửa đều theo skill [task-workflow](.claude/skills/task-workflow/SKILL.md):
+Everything is written in **English**: code comments, commit messages, PR titles, task files, READMEs and other docs — even when the request is in another language.
 
-1. Tạo `tasks/PR-X.md` (X tăng dần từ 1): tên task, mô tả chi tiết, testcase.
-2. Code, rồi cập nhật file md (testcase đã hoàn thành, kết quả).
-3. Commit: `[<type>] PR-X: <tóm tắt>` (type: feat, fix, chore, refactor, docs, test, ci...).
-4. Tạo PR tên `PR-X: <tên task>`, không có description.
+## Mandatory workflow
+
+Every request to build a feature / fix a bug / change something follows the [task-workflow](.claude/skills/task-workflow/SKILL.md) skill:
+
+1. Create `tasks/PR-X.md` (X counts up from 1): task name, detailed description, test cases.
+2. Code, then update the md file (completed test cases, result).
+3. Commit: `[<type>] PR-X: <summary>` (type: feat, fix, chore, refactor, docs, test, ci...).
+4. Open a PR titled `PR-X: <task name>`, with no description.

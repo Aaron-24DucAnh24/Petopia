@@ -1,0 +1,107 @@
+# Local infrastructure for every Petopia service.
+# The services themselves (backend, chat, frontend) run on the host; see README.md.
+# Credentials come from .env (copy .env.example to get started).
+
+name: petopia
+
+services:
+
+  # --- Backend ---------------------------------------------------------------
+
+  database:
+    image: mcr.microsoft.com/azure-sql-edge
+    container_name: petopia-database
+    restart: unless-stopped
+    ports:
+      - "1433:1433"
+    environment:
+      ACCEPT_EULA: "1"
+      MSSQL_SA_PASSWORD: ${MSSQL_SA_PASSWORD}
+    volumes:
+      - database_data:/var/opt/mssql
+
+  # Shared by the backend (cache) and chat (Pub/Sub)
+  cache:
+    image: redis:7
+    container_name: petopia-cache
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    environment:
+      REDIS_PASSWORD: ${REDIS_PASSWORD}
+    command: ["redis-server", "--requirepass", "${REDIS_PASSWORD}"]
+    volumes:
+      - cache_data:/data
+    healthcheck:
+      test: ["CMD-SHELL", "redis-cli -a \"$$REDIS_PASSWORD\" --no-auth-warning ping | grep PONG"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  storage:
+    image: minio/minio
+    container_name: petopia-storage
+    restart: unless-stopped
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
+    command: ["server", "--console-address", ":9001", "/data"]
+    volumes:
+      - storage_data:/data
+
+  # One-off job: creates the public "image" bucket the backend uploads to
+  storage-init:
+    image: minio/mc
+    container_name: petopia-storage-init
+    depends_on:
+      - storage
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+      - |
+        until mc alias set local http://storage:9000 "$$MINIO_ROOT_USER" "$$MINIO_ROOT_PASSWORD"; do sleep 2; done
+        mc mb --ignore-existing local/image
+        mc anonymous set download local/image
+    restart: "no"
+
+  search:
+    image: getmeili/meilisearch:nightly
+    container_name: petopia-search
+    restart: unless-stopped
+    ports:
+      - "7700:7700"
+    environment:
+      MEILI_MASTER_KEY: ${MEILI_MASTER_KEY}
+    volumes:
+      - search_data:/meili_data
+
+  # --- Chat ------------------------------------------------------------------
+
+  mongodb:
+    image: mongo:7.0
+    container_name: petopia-mongodb
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGODB_USERNAME}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGODB_PASSWORD}
+    volumes:
+      - mongodb_data:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--quiet", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  database_data:
+  cache_data:
+  storage_data:
+  search_data:
+  mongodb_data:
