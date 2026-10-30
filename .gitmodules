@@ -1,0 +1,12 @@
+[submodule "backend"]
+	path = backend
+	url = https://github.com/Aaron-24DucAnh24/Petopia-Backend.git
+	branch = main
+[submodule "frontend"]
+	path = frontend
+	url = https://github.com/Aaron-24DucAnh24/Petopia-Frontend.git
+	branch = main
+[submodule "chat"]
+	path = chat
+	url = https://github.com/Aaron-24DucAnh24/Petopia-Chat.git
+	branch = main
