@@ -1,0 +1,51 @@
+name: Bump submodules
+
+# Points every submodule at the latest commit on its main branch. Triggered by
+# the notify-umbrella workflow in each sub-repo after a push to its main, or by hand.
+
+on:
+  repository_dispatch:
+    types: [submodule-updated]
+  workflow_dispatch:
+    inputs:
+      task:
+        description: Task id for the commit message (e.g. PR-3)
+        required: false
+
+permissions:
+  contents: write
+
+# One bump at a time, so two merges close together don't push over each other.
+concurrency:
+  group: bump-submodules
+  cancel-in-progress: false
+
+jobs:
+  bump:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          submodules: true
+
+      - name: Point submodules at their latest main
+        run: git submodule update --remote
+
+      - name: Commit and push
+        env:
+          TASK: ${{ github.event.client_payload.task || inputs.task }}
+        run: |
+          changed=$(git diff --name-only)
+          if [ -z "$changed" ]; then
+            echo "Submodules are already up to date."
+            exit 0
+          fi
+          prefix=""
+          if [[ "$TASK" =~ ^PR-[0-9]+$ ]]; then
+            prefix="$TASK: "
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -am "[chore] ${prefix}bump $(echo $changed | sed 's/ /, /g')"
+          git push origin HEAD:main
