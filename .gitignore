@@ -1,3 +1,6 @@
 # Local secrets / machine-specific config
 .reposetup.env
 .claude/settings.local.json
+
+# Infrastructure credentials (template: .env.example)
+/.env
