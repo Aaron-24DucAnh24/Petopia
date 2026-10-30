@@ -1,6 +1,6 @@
 # PR-1: Thiết lập task workflow
 
-**Trạng thái:** In progress
+**Trạng thái:** Done
 **Phạm vi:** umbrella
 
 ## Mô tả chi tiết
@@ -19,12 +19,20 @@ Hướng tiếp cận:
 
 ## Testcase
 
-- [ ] TC1: Mở session mới trong repo → skill `task-workflow` xuất hiện trong danh sách skill khả dụng.
-- [ ] TC2: `CLAUDE.md` ở root có mục "Workflow bắt buộc" trỏ tới skill → quy tắc được nạp mỗi session.
-- [ ] TC3: Chưa có file `tasks/PR-*.md` và branch `pr-*` nào → task đầu tiên được đánh số PR-1.
-- [ ] TC4: Mọi commit trên branch `pr-1/task-workflow` có dạng `[<type>] PR-1: <tóm tắt>`.
-- [ ] TC5: PR được tạo với tiêu đề `PR-1: Thiết lập task workflow` và description trống.
+- [x] TC1: Mở session mới trong repo → skill `task-workflow` xuất hiện trong danh sách skill khả dụng.
+  - Kiểm chứng: skill được Claude Code nhận ngay sau khi tạo file, hiển thị trong danh sách skill.
+- [x] TC2: `CLAUDE.md` ở root có mục "Workflow bắt buộc" trỏ tới skill → quy tắc được nạp mỗi session.
+  - Kiểm chứng: đọc lại nội dung `CLAUDE.md`.
+- [x] TC3: Chưa có file `tasks/PR-*.md` và branch `pr-*` nào → task đầu tiên được đánh số PR-1.
+  - Kiểm chứng: `git branch -a --list '*pr-*'` không trả về branch nào, `tasks/` chưa có file task.
+- [x] TC4: Mọi commit trên branch `pr-1/task-workflow` có dạng `[<type>] PR-1: <tóm tắt>`.
+  - Kiểm chứng: `git log --oneline main..pr-1/task-workflow`.
+- [x] TC5: PR được tạo với tiêu đề `PR-1: Thiết lập task workflow` và description trống.
+  - Kiểm chứng: `gh pr view 1 --json title,body` trả về `body: ""`.
 
 ## Kết quả
 
-<Điền sau khi code xong.>
+- Thêm skill [task-workflow](../.claude/skills/task-workflow/SKILL.md) và [template](../.claude/skills/task-workflow/template.md) cho file task.
+- Thêm [CLAUDE.md](../CLAUDE.md) tóm tắt workflow bắt buộc.
+- Thêm thư mục `tasks/`, bắt đầu với file này.
+- PR: https://github.com/Aaron-24DucAnh24/Petopia/pull/1
