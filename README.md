@@ -203,6 +203,22 @@ docker compose down -v            # remove containers AND data (full reset)
 
 After `docker compose down -v`, run the migrations and the seeder again (step 4).
 
+## Docker images
+
+Each sub-repo has a production `Dockerfile` (multi-stage, runs as a non-root user). Its `docker-build` workflow builds the image on every pull request and every push to `main`; images are not pushed to a registry yet.
+
+| Service | Build | Port | Runtime config |
+| --- | --- | --- | --- |
+| backend | `docker build -t petopia-backend backend` | 9999 | Env vars using `__` for nesting (`ConnectionStrings__Database`, `Token__AccessTokenKey`, ...) or a mounted `/app/appsettings.Production.json`. `ASPNETCORE_ENVIRONMENT` defaults to `Production`. |
+| chat | `docker build -t petopia-chat chat` | 8000 | Env vars from [chat/.env.example](chat/.env.example) (`JWT_SECRET`, `MONGODB_URL`, `REDIS_URL`, ...). The container exits if a required one is missing. |
+| frontend | `docker build -t petopia-frontend --build-arg NEXT_PUBLIC_API_ENDPOINT=... --build-arg NEXT_PUBLIC_CHAT_API_ENDPOINT=... frontend` | 3000 | None at runtime. `NEXT_PUBLIC_*` values are inlined by `next build`, so they are build args and each environment needs its own image. `NEXT_PUBLIC_CKEDITOR_LICENSE` defaults to `GPL`. |
+
+Notes:
+
+- The backend listens on `http://+:9999` through the `Kestrel__Endpoints__Http__Url` env var, which overrides any `Kestrel` section in a mounted appsettings file (the local template binds `127.0.0.1`, which isn't reachable from outside a container).
+- The backend image doesn't run migrations or the seeder; run them as in step 4 against the target database.
+- Inside a container, `localhost` is the container itself. To reach the local infrastructure from a container, use `host.docker.internal` in the connection strings.
+
 ## Working with submodules
 
 Each submodule is pinned to a specific commit, and CI keeps the pins current: every push to a sub-repo's `main` runs its `notify-umbrella` workflow, which triggers [bump-submodules](.github/workflows/bump-submodules.yml) here. That workflow points every submodule at its latest `main` and commits `[chore] PR-X: bump <submodules>` to this repo's `main`. To sync a local clone:
