@@ -205,12 +205,15 @@ After `docker compose down -v`, run the migrations and the seeder again (step 4)
 
 ## Working with submodules
 
-Each submodule is pinned to a specific commit. To move all of them to the latest `main`:
+Each submodule is pinned to a specific commit, and CI keeps the pins current: every push to a sub-repo's `main` runs its `notify-umbrella` workflow, which triggers [bump-submodules](.github/workflows/bump-submodules.yml) here. That workflow points every submodule at its latest `main` and commits `[chore] PR-X: bump <submodules>` to this repo's `main`. To sync a local clone:
 
 ```bash
-git submodule update --remote --merge
-git add backend frontend chat
-git commit -m "[chore] PR-X: bump submodules"
+git pull
+git submodule update --init --recursive
 ```
 
-Make code changes inside the submodule folder and push them to that service's own repository. Then commit the updated submodule pointer here. See [CLAUDE.md](CLAUDE.md) for the task and commit conventions.
+Make code changes inside the submodule folder and push them to that service's own repository. Don't commit submodule pointer changes here by hand. See [CLAUDE.md](CLAUDE.md) for the task and commit conventions.
+
+### CI setup
+
+The `notify-umbrella` workflow in each sub-repo needs a repository secret named `UMBRELLA_DISPATCH_TOKEN`. It holds a fine-grained personal access token scoped to `Aaron-24DucAnh24/Petopia` with **Contents: Read and write**. The bump workflow pushes with the built-in `GITHUB_TOKEN`. If `main` here gets branch protection later, allow GitHub Actions to bypass it, or the bump commit will be rejected. To run a bump by hand, use **Actions → Bump submodules → Run workflow**.

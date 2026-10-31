@@ -11,7 +11,19 @@ Applies to every request that changes code, config or docs: new features, bug fi
 
 Write **everything in English**: code comments, commit messages, PR titles, task files, READMEs and other docs. This holds even when the user writes in another language.
 
-## 1. Pick the number X
+## 1. Pull the latest umbrella `main`
+
+Before anything else (picking X, creating branches, coding), bring the umbrella repo up to date so the work starts from the latest task files and submodule pointers:
+
+```bash
+git checkout main
+git pull
+git submodule update --init --recursive
+```
+
+The last command checks each submodule out at the commit the umbrella pins. CI keeps those pins on the latest `main` of each sub-repo (see step 6), so there's no need to check the sub-repos separately here.
+
+## 2. Pick the number X
 
 - X = the highest number among existing `tasks/PR-*.md` files + 1. If there are none, X = 1.
 - Also check remote `pr-*` branches so an unfinished task doesn't get its number reused:
@@ -21,7 +33,7 @@ Write **everything in English**: code comments, commit messages, PR titles, task
   ```
 - One request = one X. If the user asks for more changes to a task that is still open (not merged), update the existing PR-X.md instead of creating a new number.
 
-## 2. Create the task file BEFORE coding
+## 3. Create the task file BEFORE coding
 
 1. From the latest `main` of the umbrella repo, create a branch `pr-X/<short-slug>` (e.g. `pr-3/adoption-filter`).
 2. Create `tasks/PR-X.md` from [template.md](template.md) and fill in:
@@ -31,7 +43,7 @@ Write **everything in English**: code comments, commit messages, PR titles, task
    - **Status**: `In progress`.
 3. Commit: `[docs] PR-X: add task description`.
 
-## 3. Code
+## 4. Code
 
 - When the code lives in a submodule (`backend/`, `frontend/`, `chat/`), work in that submodule's repo:
   - `git -C <submodule> checkout main && git -C <submodule> pull`
@@ -43,7 +55,7 @@ Write **everything in English**: code comments, commit messages, PR titles, task
   `<type>` ∈ `feat`, `fix`, `chore`, `refactor`, `docs`, `test`, `ci`, `perf`, `style`, `build`. Example: `[feat] PR-3: add species filter to adoption list`.
 - Run the relevant tests/build/lint to verify each test case.
 
-## 4. Update the task file AFTER coding
+## 5. Update the task file AFTER coding
 
 Update `tasks/PR-X.md`:
 - Tick `- [x]` for each passing test case and note how it was verified (test command, manual steps...). Leave cases that failed or couldn't be checked as `- [ ]` with the reason.
@@ -51,7 +63,7 @@ Update `tasks/PR-X.md`:
 - Set **Status** to `Done` (or `Blocked` with the reason).
 - Commit: `[docs] PR-X: update task result`.
 
-## 5. Open the PRs
+## 6. Open the PRs
 
 - Push the branch and open a PR in **every repo that changed** (submodules first, umbrella last), all with the same title and **no description**:
   ```bash
@@ -59,5 +71,5 @@ Update `tasks/PR-X.md`:
   gh pr create --base main --title "PR-X: <Task name from the md file>" --body ""
   ```
   For a submodule: run inside the submodule folder (or add `--repo Aaron-24DucAnh24/Petopia-<Service>`).
-- The umbrella PR contains `tasks/PR-X.md`. Don't bump a submodule pointer to a commit on an unmerged branch; once the submodule PR is merged into `main`, bump it with a `[chore] PR-X: bump <submodule>` commit.
+- The umbrella PR contains `tasks/PR-X.md`. Don't bump submodule pointers by hand: when a submodule PR is merged into `main`, the sub-repo's `notify-umbrella` workflow triggers the umbrella's [bump-submodules](../../../.github/workflows/bump-submodules.yml) workflow, which commits `[chore] PR-X: bump <submodule>` to umbrella `main`.
 - Report back to the user with the PR links and any test cases that are not done.
